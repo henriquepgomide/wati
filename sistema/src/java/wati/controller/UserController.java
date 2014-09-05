@@ -4,6 +4,7 @@
  */
 package wati.controller;
 
+import static com.sun.corba.se.spi.presentation.rmi.StubAdapter.request;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -146,6 +147,99 @@ public class UserController extends BaseFormController<User> {
      */
     public void setPassword(String password) {
         this.password = password;
+    }
+    
+    public void sendEmailPassword() throws SQLException{
+        
+        try {
+            List<User> userList = this.getDaoBase().list("email", this.user.getEmail(), this.getEntityManager());
+            if(userList.isEmpty())
+                System.out.println("Usuário nao cadastrado solicitando alteração de senha");
+            else{
+                String name_user = this.user.getName();
+                String email_user = this.user.getEmail();
+                
+                     
+        }
+           
+        
+        /*
+        if (userList.isEmpty() || !Encrypter.compare(this.password, userList.get(0).getPassword())) {
+                //log message
+                Logger.getLogger(LoginController.class.getName()).log(Level.SEVERE, this.getText("usuario.email") + this.getUser().getEmail() + this.getText("not.login"));
+                //message to the user
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("email.senha"), null));
+
+            } 
+        
+        String email_usuario = request.getParameter("email")==null?"":request.getParameter("email"); 
+    
+        Object object = FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("loggedUser");
+
+        if (object == null) {
+
+            Logger.getLogger(ProntoParaPararController.class.getName()).log(Level.SEVERE, this.getText("user.not.logged"));
+            //message to the user
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("deve.estar.logado"), null));
+
+        
+        String mensagem;  
+                mensagem = "Olá" + "<br>" +  
+                        "<br>" +  
+                        "<P> Recebemos uma solicitação para informação dos dados de autenticação para este e-mail, caso não tenha feito esta solicitação, favor desconsiderar o mesmo.</P>" +  
+                        "<BR>" +  
+                        "<P>Caso tenha sido você, favor entrar no seguinte link: </P>" +  
+                        "<UL>" +  
+                        
+                        "<P> Att, </p>" +  
+                        "<BR>" +  
+                        "Equipe Viva sem Tabaco" +  
+                        "<BR> \n";  
+                  
+                String mailServer = "smtp.gmail.com";  
+                String assunto = "Lembraça de Senha"; */
+
+
+        //Read more: http://javafree.uol.com.br/artigo/864641/Enviar-Email-tipo-Esqueci-Senha-3-Camadas.html#ixzz3CRj4z073
+
+        }
+    }
+    }
+    
+    public void alterPassword(){
+        this.showErrorMessage = true;
+        try{
+            if (!(dao.list("email", user.getEmail(), entityManager).isEmpty())){
+                
+                this.user.setPassword(Encrypter.encrypt(this.password));
+                
+            }
+            else{
+                String message = "Usuário nao cadastrado";
+            }
+        }
+        catch (InvalidKeyException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalBlockSizeException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (BadPaddingException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchPaddingException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+
+        }
+            
+        
     }
 
     public void save(ActionEvent actionEvent) {
