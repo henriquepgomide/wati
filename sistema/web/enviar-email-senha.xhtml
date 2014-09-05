@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:w="http://java.sun.com/jsf/composite/ezcomp">
+    <f:view locale="#{languageController.locale}">
+        <h:head>
+            <title>#{messages['naccount.titlepage']}</title>
+            <w:head_comum />
+        </h:head>
+        <h:body>
+            <div id="corpo">
+                <!-- header -->    
+                <w:header />
+
+                <w:topmenu />
+
+                <!--mainmenu-->         	
+                <div class="main">
+
+                    <div class="pagecontent">
+                        <div id="maintop">
+                            <div id="maincenter">
+
+                                <div id="mainleft">
+
+                                    <div id="signup">
+                                        <h:form>  
+                                        
+                                            <p>Você esqueceu sua senha!</p> 
+                                        <p>Vamos enviar um email para seu usuário cadastrado.</p>
+                                        
+                                        <div class="signuptext">
+                                            Digite seu email:
+                                                <p:inputText id="emailTxt" value="#{userController.user.email}" required="true" size="30" label="#{messages['email']}" validatorMessage="#{messages['naccount.invalidemail']}" >
+                                                    <!--<p:ajax update="loginMsg" event="blur" />-->
+                                                    <f:validateLength maximum="50" />
+                                                    <f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+                                                </p:inputText>
+                                                <p:watermark for="emailTxt" value="#{messages['email']}" />
+                                                <p:message for="emailTxt" />
+                                            </div>
+                                        
+                                        <p>Clique em aceito</p>
+                                        
+                                        
+                                        
+                                       
+
+                                        <div id="signinbtn">
+                                            <p:commandButton id="entrarBtn" value="#{messages['aceitar']}" update="@form" actionListener="#{userController.sendEmailPassword}" ajax="false"/>
+                                        </div>
+
+                                        </h:form>
+                                            
+
+                                   
+
+
+
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            </div>
+
+            <!--Footer -->
+            <w:footer />
+        </h:body>
+    </f:view>
+</html>
+
