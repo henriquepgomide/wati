@@ -6,6 +6,8 @@ package wati.controller;
 
 import static com.sun.corba.se.spi.presentation.rmi.StubAdapter.request;
 import java.io.IOException;
+import java.util.Random;
+import static java.lang.Math.random;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -33,6 +35,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import wati.model.User;
 import wati.persistence.GenericDAO;
+import wati.utility.EMailSSL;
 import wati.utility.Encrypter;
 
 /**
@@ -153,70 +156,94 @@ public class UserController extends BaseFormController<User> {
         
         try {
             List<User> userList = this.getDaoBase().list("email", this.user.getEmail(), this.getEntityManager());
-            if(userList.isEmpty())
+            if(userList.isEmpty()){
                 System.out.println("Usuário nao cadastrado solicitando alteração de senha");
+                this.generateCode();
+            }
             else{
                 String name_user = this.user.getName();
                 String email_user = this.user.getEmail();
+                String from = "watiufjf@gmail.com";
+                String to = user.getEmail();
+                String subject = "Redefinição de senha"; //this.getText("plano.wati");
+                String body;  
+                body = "Olá" + name_user + "\n" +  
+                        "\n" +  
+                        "Recebemos uma solicitação para informação dos dados de autenticação para o seguinte e-mail: " + email_user + ", caso não tenha feito esta solicitação, favor desconsiderar o mesmo. \n" +  
+                         
+                        "Caso tenha sido você, favor entrar no seguinte link: \n" +  
+                           this.getLinkPassword() + "\n" + 
+                       
+                        " Att," +  
+                        "\n" +  
+                        "Equipe Viva sem Tabaco" +  
+                        "\n";  
                 
-                     
+                
+                EMailSSL eMailSSL = new EMailSSL();
+                
+                eMailSSL.send(from, to, subject, body);
+                      
+                this.generateCode();
+                
+            }
         }
-           
+        catch (SQLException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+
+        }  
+    }
+    
+    public String getLinkPassword(){
+        return FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "wwww.vivasemtabaco.com.br/esqueceu-sua-senha.xhtml";
+    }
+    
+    public void generateCode(){
+        int codigo = 0;
+        Random generate = new Random();
+        for(int i = 0 ; i < 5; i++){
+            if(i == 0)
+                codigo+= (generate.nextInt(10));
+            else 
+                codigo+= (generate.nextInt(10))*10^i;
+            
+        }
+        System.out.println(codigo);
         
         /*
-        if (userList.isEmpty() || !Encrypter.compare(this.password, userList.get(0).getPassword())) {
-                //log message
-                Logger.getLogger(LoginController.class.getName()).log(Level.SEVERE, this.getText("usuario.email") + this.getUser().getEmail() + this.getText("not.login"));
-                //message to the user
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("email.senha"), null));
-
-            } 
-        
-        String email_usuario = request.getParameter("email")==null?"":request.getParameter("email"); 
-    
-        Object object = FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("loggedUser");
-
-        if (object == null) {
-
-            Logger.getLogger(ProntoParaPararController.class.getName()).log(Level.SEVERE, this.getText("user.not.logged"));
-            //message to the user
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("deve.estar.logado"), null));
-
-        
-        String mensagem;  
-                mensagem = "Olá" + "<br>" +  
-                        "<br>" +  
-                        "<P> Recebemos uma solicitação para informação dos dados de autenticação para este e-mail, caso não tenha feito esta solicitação, favor desconsiderar o mesmo.</P>" +  
-                        "<BR>" +  
-                        "<P>Caso tenha sido você, favor entrar no seguinte link: </P>" +  
-                        "<UL>" +  
-                        
-                        "<P> Att, </p>" +  
-                        "<BR>" +  
-                        "Equipe Viva sem Tabaco" +  
-                        "<BR> \n";  
-                  
-                String mailServer = "smtp.gmail.com";  
-                String assunto = "Lembraça de Senha"; */
-
-
-        //Read more: http://javafree.uol.com.br/artigo/864641/Enviar-Email-tipo-Esqueci-Senha-3-Camadas.html#ixzz3CRj4z073
-
-        }
-    }
+        Random generate = new Random();
+        for(int i = 0; i < 1; i++){
+            int generatee = ((generate.nextInt())^2)/2;
+            System.out.println(generatee);
+        }*/
+      
     }
     
     public void alterPassword(){
         this.showErrorMessage = true;
+        
         try{
-            if (!(dao.list("email", user.getEmail(), entityManager).isEmpty())){
+            if(user.getId() != 0){
+                this.user.setPassword(Encrypter.encrypt(this.password));
+            }
+           /* if (!(dao.list("email", user.getEmail(), entityManager).isEmpty())){
                 
                 this.user.setPassword(Encrypter.encrypt(this.password));
                 
             }
             else{
                 String message = "Usuário nao cadastrado";
-            }
+            }*/
+            Locale locale =  (Locale) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("locale");
+                if(locale == null ){
+                    locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
+                }
+           this.user.setPreferedLanguage(locale.getLanguage());
+           
+           ELContext elContext = FacesContext.getCurrentInstance().getELContext();
+           LoginController login = (LoginController) FacesContext.getCurrentInstance().getApplication().getELResolver().getValue(elContext, null, "loginController");
+           login.setPassword(this.password);
         }
         catch (InvalidKeyException ex) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
@@ -233,9 +260,9 @@ public class UserController extends BaseFormController<User> {
         } catch (NoSuchPaddingException ex) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
             Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+      /*  } catch (SQLException ex) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);*/
 
         }
             
