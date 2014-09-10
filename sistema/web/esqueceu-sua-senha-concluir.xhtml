@@ -35,20 +35,16 @@
                                         <f:validateLength maximum="50" />
                                     </p:inputText>
                                             
-                                            Digite o código:
-                                            <p:inputText id="codeTxt" value="#{userController.recoverCode}" required="true" size="30" label="Código">
-                                            <f:validateLength maximum="50"/>
-                                            </p:inputText>
-                                            
+                                        
             
                                        <!-- <div class="signuptext">-->
-                     <!--                       Digite aqui sua nova senha:
-                                                <p:password id="passwordTxt" value="#{userController.password}" required="true" match="confirmPasswordTxt" redisplay="true" size="30" label="#{messages['psw']}">  
-                                                    <f:validateLength maximum="16" />-->
+                                           Digite aqui sua nova senha:
+                                                <p:password id="passwordTxt" value="#{userController.user.password}" required="true" match="confirmPasswordTxt" redisplay="true" size="30" label="#{messages['psw']}">  
+                                                    <f:validateLength maximum="16" />
                                                     <!--<p:ajax update="passwordMsg" event="blur" />-->
-                  <!--                              </p:password>
+                                             </p:password>
                                                 <p:watermark for="passwordTxt" value="#{messages['psw']}" />
-                                                <p:message for="passwordTxt" />-->
+                                                <p:message for="passwordTxt" />
                                                 
                                                 
                                                 
@@ -60,7 +56,7 @@
                                     </div>
                                     
                                     <div id="signinbtn">
-                                        <p:commandButton id="nexttBtn" value="#{messages['next']}" update="@form" actionListener="#{userController.checkCode()}" ajax="false"/>
+                                        <p:commandButton id="alterarBtn" value="#{messages['alterar']}" update="@form" actionListener="#{userController.alterPassword()}" ajax="false"/>
                                         </div>
                                         
                                     

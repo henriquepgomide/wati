@@ -6,6 +6,7 @@ package wati.controller;
 
 import static com.sun.corba.se.spi.presentation.rmi.StubAdapter.request;
 import java.io.IOException;
+import static java.lang.Math.pow;
 import java.util.Random;
 import static java.lang.Math.random;
 import java.security.InvalidKeyException;
@@ -49,6 +50,8 @@ public class UserController extends BaseFormController<User> {
     private User user;
 
     private String password;
+    
+    private int recoverCode;
 
     private int dia;
     private int mes;
@@ -135,6 +138,15 @@ public class UserController extends BaseFormController<User> {
         this.user = user;
     }
 
+    public int getRecoverCode() {
+        return recoverCode;
+    }
+
+    public void setRecoverCode(int recoverCode) {
+        this.recoverCode = recoverCode;
+    }
+    
+
     /**
      * @return the password
      */
@@ -158,12 +170,13 @@ public class UserController extends BaseFormController<User> {
             List<User> userList = this.getDaoBase().list("email", this.user.getEmail(), this.getEntityManager());
             if(userList.isEmpty()){
                 System.out.println("Usuário nao cadastrado solicitando alteração de senha");
-                this.generateCode();
+               // this.generateCode();
             }
             else{
                 String name_user = this.user.getName();
                 String email_user = this.user.getEmail();
                 String from = "watiufjf@gmail.com";
+                user.setRecoverCode(this.generateCode());
                 String to = user.getEmail();
                 String subject = "Redefinição de senha"; //this.getText("plano.wati");
                 String body;  
@@ -171,8 +184,9 @@ public class UserController extends BaseFormController<User> {
                         "\n" +  
                         "Recebemos uma solicitação para informação dos dados de autenticação para o seguinte e-mail: " + email_user + ", caso não tenha feito esta solicitação, favor desconsiderar o mesmo. \n" +  
                          
-                        "Caso tenha sido você, favor entrar no seguinte link: \n" +  
-                           this.getLinkPassword() + "\n" + 
+                        "Caso tenha sido você, favor entrar no seguinte link: " +  
+                           this.getLinkPassword() + " e cadastrar o código abaixo para prosseguir com a alteração de sua senha." + "\n" + 
+                        "Código: " + user.getRecoverCode() + "\n\n" +
                        
                         " Att," +  
                         "\n" +  
@@ -196,20 +210,27 @@ public class UserController extends BaseFormController<User> {
     }
     
     public String getLinkPassword(){
-        return FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "wwww.vivasemtabaco.com.br/esqueceu-sua-senha.xhtml";
+        return "http://wwww.vivasemtabaco.com/esqueceu-sua-senha.xhtml";
     }
-    
-    public void generateCode(){
-        int codigo = 0;
+
+    public int generateCode(){
+        long codigo = 0;
+        int base = 1;
+        float valor = 0;
+        
         Random generate = new Random();
-        for(int i = 0 ; i < 5; i++){
-            if(i == 0)
-                codigo+= (generate.nextInt(10));
-            else 
-                codigo+= (generate.nextInt(10))*10^i;
-            
-        }
-        System.out.println(codigo);
+        valor = (float)generate.nextInt(100000)/10;
+            while(valor >999 && valor < 10000)
+            {
+                valor = (float)generate.nextInt(10000)/10;
+            }
+            //valor = (int)generate.nextInt();
+            valor *= 10;
+           
+             
+            codigo = (int) valor;
+            return (int) codigo;
+        //System.out.println("o result é :"+codigo);
         
         /*
         Random generate = new Random();
@@ -218,6 +239,22 @@ public class UserController extends BaseFormController<User> {
             System.out.println(generatee);
         }*/
       
+    
+   }
+    
+    public String checkCode(){
+        try {
+            if ((dao.list("recoverCode", user.getRecoverCode(), entityManager).isEmpty()) & (dao.list("email", user.getEmail(), entityManager).isEmpty())) {
+                String message = "Código ou email incorretos";
+                return message;
+            }
+            else
+                return "esqueceu-sua-senha-concluir.xhtml";
+        }catch (SQLException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);    
+        }
+        return "";
     }
     
     public void alterPassword(){
