@@ -31,7 +31,7 @@
                                         <div class="signuptext">
                                             
                                             Digite seu email:
-                                            <p:inputText id="emailTxt" value="#{loginController.user.email}" required="true" size="30" label="E-mail" >
+                                            <p:inputText id="emailTxt" value="#{userController.user.email}" required="true" size="30" label="E-mail" >
                                         <f:validateLength maximum="50" />
                                     </p:inputText>
                                             
@@ -41,21 +41,7 @@
                                             </p:inputText>
                                             
             
-                                       <!-- <div class="signuptext">-->
-                     <!--                       Digite aqui sua nova senha:
-                                                <p:password id="passwordTxt" value="#{userController.password}" required="true" match="confirmPasswordTxt" redisplay="true" size="30" label="#{messages['psw']}">  
-                                                    <f:validateLength maximum="16" />-->
-                                                    <!--<p:ajax update="passwordMsg" event="blur" />-->
-                  <!--                              </p:password>
-                                                <p:watermark for="passwordTxt" value="#{messages['psw']}" />
-                                                <p:message for="passwordTxt" />-->
-                                                
-                                                
-                                                
-                                                
-                                                
-                                                
-                                        <!--    </div>-->
+                         
                                         
                                     </div>
                                     
