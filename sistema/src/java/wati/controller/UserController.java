@@ -56,7 +56,7 @@ public class UserController extends BaseFormController<User> {
     private int ano;
 
     private String email;
-    private int recoverCode;
+    private String recoverCode;
 
     private boolean showErrorMessage;
 
@@ -138,11 +138,11 @@ public class UserController extends BaseFormController<User> {
         this.user = user;
     }
 
-    public int getRecoverCode() {
+    public String getRecoverCode() {
         return recoverCode;
     }
 
-    public void setRecoverCode(int recoverCode) {
+    public void setRecoverCode(String recoverCode) {
         this.recoverCode = recoverCode;
     }
 
@@ -169,21 +169,22 @@ public class UserController extends BaseFormController<User> {
             List<User> userList = this.getDaoBase().list("email", this.user.getEmail(), this.getEntityManager());
             if (userList.isEmpty()) {
                 System.out.println("Usuário nao cadastrado solicitando alteração de senha");
-                // this.generateCode();
             } else {
-                String name_user = this.user.getName();
-                String email_user = this.user.getEmail();
+                String name_user = userList.get(0).getName(); //this.user.getName();
+                String email_user = userList.get(0).getEmail();//this.user.getEmail();
                 String from = "watiufjf@gmail.com";
-                user.setRecoverCode(this.generateCode());
+                
+                int code = this.generateCode();
+                
                 String to = user.getEmail();
-                String subject = "Redefinição de senha"; //this.getText("plano.wati");
+                String subject = "Redefinição de senha";
                 String body;
-                body = "Olá" + name_user + "\n"
+                body = "Olá " + name_user + "\n"
                         + "\n"
                         + "Recebemos uma solicitação para informação dos dados de autenticação para o seguinte e-mail: " + email_user + ", caso não tenha feito esta solicitação, favor desconsiderar o mesmo. \n"
                         + "Caso tenha sido você, favor entrar no seguinte link: "
                         + this.getLinkPassword() + " e cadastrar o código abaixo para prosseguir com a alteração de sua senha." + "\n"
-                        + "Código: " + user.getRecoverCode() + "\n\n"
+                        + "Código: " + code + "\n\n"
                         + " Att,"
                         + "\n"
                         + "Equipe Viva sem Tabaco"
@@ -192,9 +193,15 @@ public class UserController extends BaseFormController<User> {
                 EMailSSL eMailSSL = new EMailSSL();
 
                 eMailSSL.send(from, to, subject, body);
+                
+                user = userList.get(0);
+                user.setRecoverCode(code);
+                this.getDaoBase().insertOrUpdate(user, this.getEntityManager());
+               
+                
 
                 this.generateCode();
-
+               
             }
         } catch (SQLException ex) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
@@ -222,52 +229,32 @@ public class UserController extends BaseFormController<User> {
 
         codigo = (int) valor;
         return (int) codigo;
-        //System.out.println("o result é :"+codigo);
-
-        /*
-         Random generate = new Random();
-         for(int i = 0; i < 1; i++){
-         int generatee = ((generate.nextInt())^2)/2;
-         System.out.println(generatee);
-         }*/
     }
 
-    public String checkCode() {
+    public void checkCode() {
         try {
             String message;
-            //List<User> userList = dao.list("email", txtEmail.getValue(), entityManager).isEmpty();
             List<User> userList = this.getDaoBase().list("email", this.getUser().getEmail(), this.getEntityManager());
            
-
             if ((!userList.isEmpty() && userList.get(0).getRecoverCode() == Integer.valueOf(recoverCode))) {
-                this.user = userList.get(0);
-                return "esqueceu-sua-senha-concluir.xhtml";
+                //this.user = userList.get(0);
+                //return "esqueceu-sua-senha-concluir.xhtml";
+                System.out.println(userList.get(0).getRecoverCode() + "passou no if");
                 
             } else {
+                System.out.println(userList.get(0).getRecoverCode() + "valor de codigo enviado por email");
                 message = "Código ou email incorretos";
-                return message;
+                System.out.println(message);
+                System.out.println(Integer.valueOf(recoverCode) + "valueOf");
+               // return message;
             }
         }catch (SQLException ex) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
             Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-            return "";
+            //return "";
     }
     }
     
-    
-
-    /* try {
-     List<User> ul = dao.list("email", txtEmail.getValue(), entityManager).isEmpty()
-        );
-     if (!ul.isEmpty() && ul.get(0).getRecoverCode() == Integer.valueOf(txtCodigo.getValue())) {
-            this.user = ul.get(0);
-          //muda senha (criptografia)
-            //atualiza o usuario no BD
-            //mandar usuario p/ pagina inicial do VsT
-            return "esqueceu-sua-senha-concluir.xhtml";
-        } else {
-            //exibir erro p/ usuario informando que e-mail é invalido     
-        }*/
 
 
 
