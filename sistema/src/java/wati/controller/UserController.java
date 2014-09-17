@@ -47,457 +47,513 @@ import wati.utility.Encrypter;
 @SessionScoped
 public class UserController extends BaseFormController<User> {
 
-	private User user;
+    private User user;
 
-	private String password;
+    private String password;
 
-	private int dia;
-	private int mes;
-	private int ano;
+    private int dia;
+    private int mes;
+    private int ano;
 
-	private String email;
-	private Integer recoverCode;
+    private String email;
+    private Integer recoverCode;
+    private String passwordd;
 
-	private boolean showErrorMessage;
+    private boolean showErrorMessage;
 
-	private Map<String, String> dias = new LinkedHashMap<String, String>();
-	private Map<String, String> meses = new LinkedHashMap<String, String>();
-	private Map<String, String> anos = new LinkedHashMap<String, String>();
-	private String[] nomeMeses;
+    private Map<String, String> dias = new LinkedHashMap<String, String>();
+    private Map<String, String> meses = new LinkedHashMap<String, String>();
+    private Map<String, String> anos = new LinkedHashMap<String, String>();
+    private String[] nomeMeses;
 
-	@PersistenceContext
-	private EntityManager entityManager = null;
+    @PersistenceContext
+    private EntityManager entityManager = null;
 
-	private GenericDAO dao = null;
+    private GenericDAO dao = null;
 
-	/**
-	 * Creates a new instance of UserController
-	 */
-	public UserController() {
+    /**
+     * Creates a new instance of UserController
+     */
+    public UserController() {
 
-		super(User.class);
+        super(User.class);
 
-		this.showErrorMessage = false;
+        this.showErrorMessage = false;
 
-		mes = -1;
+        mes = -1;
 
-		for (int i = 1; i <= 31; i++) {
-			dias.put(String.valueOf(i), String.valueOf(i));
-		}
+        for (int i = 1; i <= 31; i++) {
+            dias.put(String.valueOf(i), String.valueOf(i));
+        }
 
 
-		/* for (int i = 1; i <= 12; i++) {
-		 //meses.put(this.nomeMeses[ i], String.valueOf(i+1));
-		 meses.put(this.getText("month." + String.valueOf(i)),
-		 String.valueOf(i - 1));
-		 }*/
-		GregorianCalendar gc = (GregorianCalendar) GregorianCalendar.getInstance();
-		int lastYear = gc.get(GregorianCalendar.YEAR) - 1;
-		for (int i = lastYear; i > lastYear - 100; i--) {
-			anos.put(String.valueOf(i), String.valueOf(i));
-		}
+        /* for (int i = 1; i <= 12; i++) {
+         //meses.put(this.nomeMeses[ i], String.valueOf(i+1));
+         meses.put(this.getText("month." + String.valueOf(i)),
+         String.valueOf(i - 1));
+         }*/
+        GregorianCalendar gc = (GregorianCalendar) GregorianCalendar.getInstance();
+        int lastYear = gc.get(GregorianCalendar.YEAR) - 1;
+        for (int i = lastYear; i > lastYear - 100; i--) {
+            anos.put(String.valueOf(i), String.valueOf(i));
+        }
 
-		try {
-			dao = new GenericDAO(User.class);
-		} catch (NamingException ex) {
-			Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-		}
+        try {
+            dao = new GenericDAO(User.class);
+        } catch (NamingException ex) {
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-	}
+    }
 
-	/**
-	 * @return the user
-	 */
-	public User getUser() {
-		if (user == null) {
-			String id = this.getParameterMap().get("id");
-			if (id == null || id.isEmpty()) {
-				this.user = new User();
-			} else {
-				try {
-					List<User> list = this.getDaoBase().list("id", Long.parseLong(id), this.entityManager);
-					if (list.isEmpty()) {
-						this.user = new User();
-					} else {
-						this.user = list.get(0);
-					}
-				} catch (SQLException ex) {
-					Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-					this.user = new User();
-				}
-			}
+    /**
+     * @return the user
+     */
+    public User getUser() {
+        if (user == null) {
+            String id = this.getParameterMap().get("id");
+            if (id == null || id.isEmpty()) {
+                this.user = new User();
+            } else {
+                try {
+                    List<User> list = this.getDaoBase().list("id", Long.parseLong(id), this.entityManager);
+                    if (list.isEmpty()) {
+                        this.user = new User();
+                    } else {
+                        this.user = list.get(0);
+                    }
+                } catch (SQLException ex) {
+                    Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+                    this.user = new User();
+                }
+            }
 
-		}
-		return user;
-	}
+        }
+        return user;
+    }
 
-	/**
-	 * @param user the user to set
-	 */
-	public void setUser(User user) {
-		this.user = user;
-	}
+    /**
+     * @param user the user to set
+     */
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-	public Integer getRecoverCode() {
-		return recoverCode;
-	}
+    public Integer getRecoverCode() {
+        return recoverCode;
+    }
 
-	public void setRecoverCode(Integer recoverCode) {
-		this.recoverCode = recoverCode;
-	}
+    public void setRecoverCode(Integer recoverCode) {
+        this.recoverCode = recoverCode;
+    }
 
-	/**
-	 * @return the password
-	 */
-	public String getPassword() {
-		if (this.password == null) {
-			this.password = this.user == null || this.user.getPassword() == null ? "" : this.user.getPassword().toString();
-		}
-		return this.password;
-	}
+    /**
+     * @return the password
+     */
+    public String getPassword() {
+        if (this.password == null) {
+            this.password = this.user == null || this.user.getPassword() == null ? "" : this.user.getPassword().toString();
+        }
+        return this.password;
+    }
 
-	/**
-	 * @param password the password to set
-	 */
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public String getPasswordd() {
+        return passwordd;
+    }
 
-	public void sendEmailPassword() throws SQLException {
+    public void setPasswordd(String passwordd) {
+        this.passwordd = passwordd;
+    }
 
-		try {
-			List<User> userList = this.getDaoBase().list("email", this.email, this.getEntityManager());
-			if (userList.isEmpty()) {
-				System.out.println("Usuário não cadastrado solicitando alteração de senha");
-			} else {
-				String name_user = userList.get(0).getName(); //this.user.getName();
-				String email_user = userList.get(0).getEmail();//this.user.getEmail();
-				String from = "watiufjf@gmail.com";
+    /**
+     * @param password the password to set
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-				int code = this.generateCode();
+    public void sendEmailPassword() throws SQLException {
 
-				String to = this.email;
-				String subject = "Redefinição de senha";
-				String body;
-				body = "Olá " + name_user + "\n"
-						+ "\n"
-						+ "Recebemos uma solicitação para informação dos dados de autenticação para o seguinte e-mail: " + email_user + ", caso não tenha feito esta solicitação, favor desconsiderar o mesmo. \n"
-						+ "Caso tenha sido você, favor entrar no seguinte link: "
-						+ this.getLinkPassword() + " e cadastrar o código abaixo para prosseguir com a alteração de sua senha." + "\n"
-						+ "Código: " + code + "\n\n"
-						+ " Att,"
-						+ "\n"
-						+ "Equipe Viva sem Tabaco"
-						+ "\n";
+        try {
+            List<User> userList = this.getDaoBase().list("email", this.email, this.getEntityManager());
+            if (userList.isEmpty()) {
+                String message = "Usuário não cadastrado solicitando alteração de senha";
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
+                //System.out.println("Usuário não cadastrado solicitando alteração de senha");
+            } else {
+                String name_user = userList.get(0).getName(); //this.user.getName();
+                String email_user = userList.get(0).getEmail();//this.user.getEmail();
+                String from = "watiufjf@gmail.com";
 
-				EMailSSL eMailSSL = new EMailSSL();
+                int code = this.generateCode();
 
-				eMailSSL.send(from, to, subject, body);
+                String to = this.email;
+                String subject = "Redefinição de senha";
+                String body;
+                body = "Olá " + name_user + "\n"
+                        + "\n"
+                        + "Recebemos uma solicitação para informação dos dados de autenticação para o seguinte e-mail: " + email_user + ", caso não tenha feito esta solicitação, favor desconsiderar o mesmo. \n"
+                        + "Caso tenha sido você, favor entrar no seguinte link: "
+                        + this.getLinkPassword() + " e cadastrar o código abaixo para prosseguir com a alteração de sua senha." + "\n"
+                        + "Código: " + code + "\n\n"
+                        + " Att,"
+                        + "\n"
+                        + "Equipe Viva sem Tabaco"
+                        + "\n";
 
-				user = userList.get(0);
-				user.setRecoverCode(code);
-				this.getDaoBase().insertOrUpdate(user, this.getEntityManager());
+                EMailSSL eMailSSL = new EMailSSL();
 
-				this.generateCode();
+                eMailSSL.send(from, to, subject, body);
 
-			}
-		} catch (SQLException ex) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-			Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+                user = userList.get(0);
+                user.setRecoverCode(code);
+                this.getDaoBase().insertOrUpdate(user, this.getEntityManager());
+                String message = "Email enviado com sucesso";
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
+            }
+        } catch (SQLException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
 
-		}
-	}
+        }
+    }
 
-	public String getLinkPassword() {
-		return "http://wwww.vivasemtabaco.com/esqueceu-sua-senha.xhtml";
-	}
+    public String getLinkPassword() {
+        return "http://wwww.vivasemtabaco.com/esqueceu-sua-senha.xhtml";
+    }
 
-	public int generateCode() {
-		long codigo = 0;
-		int base = 1;
-		float valor = 0;
+    public int generateCode() {
+        long codigo = 0;
+        int base = 1;
+        float valor = 0;
 
-		Random generate = new Random();
-		valor = (float) generate.nextInt(100000) / 10;
-		while (valor > 999 && valor < 10000) {
-			valor = (float) generate.nextInt(10000) / 10;
-		}
-		//valor = (int)generate.nextInt();
-		valor *= 10;
+        Random generate = new Random();
+        valor = (float) generate.nextInt(100000) / 10;
+        while (valor > 999 && valor < 10000) {
+            valor = (float) generate.nextInt(10000) / 10;
+        }
+        //valor = (int)generate.nextInt();
+        valor *= 10;
 
-		codigo = (int) valor;
-		return (int) codigo;
-	}
+        codigo = (int) valor;
+        return (int) codigo;
+    }
 
-	public void checkCode() {
-		try {
-			String message;
-			List<User> userList = this.getDaoBase().list("email", this.email, this.getEntityManager());
-
-			//Integer
-			//String
-			if (!userList.isEmpty() && userList.get(0).getRecoverCode() != null && userList.get(0).getRecoverCode().intValue() == recoverCode.intValue()) {
+    public String checkCode() {
+        try {
+            String message;
+            List<User> userList = this.getDaoBase().list("email", this.email, this.getEntityManager());
+            if (!userList.isEmpty() && userList.get(0).getRecoverCode() != null && userList.get(0).getRecoverCode().intValue() == recoverCode.intValue()) {
                 //this.user = userList.get(0);
-				//return "esqueceu-sua-senha-concluir.xhtml";
-				System.out.println(userList.get(0).getRecoverCode() + "passou no if");
+                return "esqueceu-sua-senha-concluir.xhtml";
+                //System.out.println(userList.get(0).getRecoverCode() + "passou no if");
 
-			} else {
-				System.out.println(userList.get(0).getRecoverCode() + "valor de codigo enviado por email");
-				message = "Código ou email incorretos";
-				System.out.println(message);
-				System.out.println(Integer.valueOf(recoverCode) + "valueOf");
-				// return message;
-			}
-		} catch (SQLException ex) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-			Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-			//return "";
-		}
-	}
+            } else {
+                //System.out.println(userList.get(0).getRecoverCode() + "valor de codigo enviado por email");
+                message = "Código ou email incorretos";
+				//System.out.println(message);
+                //System.out.println(Integer.valueOf(recoverCode) + "valueOf");
+                return message;
+            }
+        } catch (SQLException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+            return "";
+        }
+    }
 
-	public void alterPassword() throws SQLException {
-		this.showErrorMessage = true;
-
-		try {
-			if (user.getId() != 0) {
-				this.user.setPassword(Encrypter.encrypt(this.password));
-				this.getDaoBase().insertOrUpdate(user, this.getEntityManager());
-			} else {
-				String message = "Usuário não cadastrado";
-				System.out.println(message);
-			}
-			/* if (!(dao.list("email", user.getEmail(), entityManager).isEmpty())){
+    public String alterPassword() throws SQLException, InvalidKeyException {
+        this.showErrorMessage = true;
+        List<User> userList = this.getDaoBase().list("email", this.email, this.getEntityManager());
+        try{
+            /*if (!userList.isEmpty()) {
+                String message = "usuario não cadastrado solicitando alteração de senha";
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
+            } 
+            else{*/
+                if (!userList.isEmpty() && userList.get(0).getId() != 0) {
+                    user = userList.get(0);
+                   // System.out.println(userList.get(0).getId());
+                    this.user.setPassword(Encrypter.encrypt(this.passwordd));
+                    this.getDaoBase().insertOrUpdate(user, this.getEntityManager());
+                    String message = "Senha alterada";
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
+                    return "index.xhtml";
+                    //System.out.println("senha alterada");
+                }
+                else{
+                    //System.out.println("id numero 0: " + userList.get(0).getEmail());
+                    //System.out.println("entrou no else");
+                    String message = "usuario não cadastrado solicitando alteração de senha";
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
+                }
+            
+        }catch (InvalidKeyException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalBlockSizeException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (BadPaddingException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchPaddingException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "";
+    }
+        /*this.showErrorMessage = true;
+        try{
+        if (!(dao.list("email", user.getEmail(), entityManager).isEmpty()));
+        //List<User> userList = this.getDaoBase().list("email", this.email, this.getEntityManager());
+        {
+            System.out.println(user.getId());
+            if (user.getId() != 0){//(!userList.isEmpty() && userList.get(0).getId() != 0){//user.getId() != 0) {
                 
-			 this.user.setPassword(Encrypter.encrypt(this.password));
+                this.user.setPassword(Encrypter.encrypt(this.passwordd));
+                this.getDaoBase().insertOrUpdate(user, this.getEntityManager());
+                String message = "senha alterada";
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
+               // return "index.xhtml";
+            } else {
+                String message = "Usuário não cadastrado";
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
+                //String message = "Usuário não cadastrado";
+                //return "";
                 
-			 }
-			 else{
-			 String message = "Usuário nao cadastrado";
-			 }*/
-			Locale locale = (Locale) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("locale");
-			if (locale == null) {
-				locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
-			}
-			this.user.setPreferedLanguage(locale.getLanguage());
+            }}*/
+            
+            /*Locale locale = (Locale) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("locale");
+            if (locale == null) {
+                locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
+            }
+            this.user.setPreferedLanguage(locale.getLanguage());*/
 
-			ELContext elContext = FacesContext.getCurrentInstance().getELContext();
-			LoginController login = (LoginController) FacesContext.getCurrentInstance().getApplication().getELResolver().getValue(elContext, null, "loginController");
-			login.setPassword(this.password);
-		} catch (InvalidKeyException ex) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-			Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-		} catch (IllegalBlockSizeException ex) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-			Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-		} catch (BadPaddingException ex) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-			Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-		} catch (NoSuchAlgorithmException ex) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-			Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-		} catch (NoSuchPaddingException ex) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-			Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-			/*  } catch (SQLException ex) {
-			 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-			 Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);*/
+           /* ELContext elContext = FacesContext.getCurrentInstance().getELContext();
+            LoginController login = (LoginController) FacesContext.getCurrentInstance().getApplication().getELResolver().getValue(elContext, null, "loginController");
+            login.setPassword(this.password);
+        } catch (InvalidKeyException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalBlockSizeException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (BadPaddingException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchPaddingException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+            /*  } catch (SQLException ex) {
+             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));*/
+             //Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
 
-		}
+        
+       // return "";
 
-	}
 
-	public void save(ActionEvent actionEvent) {
+    public void save(ActionEvent actionEvent) {
 
-		this.showErrorMessage = true;
-		this.user.setBirth(new GregorianCalendar(ano, mes, dia).getTime());
+        this.showErrorMessage = true;
+        this.user.setBirth(new GregorianCalendar(ano, mes, dia).getTime());
 
-		try {
-			if (!(dao.list("email", user.getEmail(), entityManager).isEmpty())) {
-				String message = this.getText("email.cadastrado");
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
-			} else {
+        try {
+            if (!(dao.list("email", user.getEmail(), entityManager).isEmpty())) {
+                String message = this.getText("email.cadastrado");
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
+            } else {
 
-				if (user.getId() == 0) {
+                if (user.getId() == 0) {
 
-					//incluir criptografia da senha
-					this.user.setPassword(Encrypter.encrypt(this.password));
+                    //incluir criptografia da senha
+                    this.user.setPassword(Encrypter.encrypt(this.password));
 
-				} else {
+                } else {
 
-					if (!Encrypter.compare(this.password, this.user.getPassword())) {
-						//incluir criptografia da senha
-						this.user.setPassword(Encrypter.encrypt(this.password));
-					}
+                    if (!Encrypter.compare(this.password, this.user.getPassword())) {
+                        //incluir criptografia da senha
+                        this.user.setPassword(Encrypter.encrypt(this.password));
+                    }
 
-				}
+                }
 
-				Locale locale = (Locale) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("locale");
-				if (locale == null) {
-					locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
-				}
-				this.user.setPreferedLanguage(locale.getLanguage());
+                Locale locale = (Locale) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("locale");
+                if (locale == null) {
+                    locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
+                }
+                this.user.setPreferedLanguage(locale.getLanguage());
 
-				super.save(actionEvent, entityManager);
-				//FacesContext.getCurrentInstance().addMessage(null, new FacesMessage( FacesMessage.SEVERITY_INFO, "Usuário criado com sucesso.", null ));
-				ELContext elContext = FacesContext.getCurrentInstance().getELContext();
-				LoginController login = (LoginController) FacesContext.getCurrentInstance().getApplication().getELResolver().getValue(elContext, null, "loginController");
-				login.setUser(this.user);
-				login.setPassword(this.password);
-				login.loginDialog();
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().redirect("escolha-uma-etapa.xhtml");
-					//FacesContext.getCurrentInstance().getExternalContext().redirect("index.xhtml");
-				} catch (IOException ex) {
-					Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-				}
-				this.clear();
-			}
+                super.save(actionEvent, entityManager);
+                //FacesContext.getCurrentInstance().addMessage(null, new FacesMessage( FacesMessage.SEVERITY_INFO, "Usuário criado com sucesso.", null ));
+                ELContext elContext = FacesContext.getCurrentInstance().getELContext();
+                LoginController login = (LoginController) FacesContext.getCurrentInstance().getApplication().getELResolver().getValue(elContext, null, "loginController");
+                login.setUser(this.user);
+                login.setPassword(this.password);
+                login.loginDialog();
+                try {
+                    FacesContext.getCurrentInstance().getExternalContext().redirect("escolha-uma-etapa.xhtml");
+                    //FacesContext.getCurrentInstance().getExternalContext().redirect("index.xhtml");
+                } catch (IOException ex) {
+                    Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                this.clear();
+            }
 
-		} catch (InvalidKeyException ex) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-			Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-		} catch (IllegalBlockSizeException ex) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-			Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-		} catch (BadPaddingException ex) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-			Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-		} catch (NoSuchAlgorithmException ex) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-			Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-		} catch (NoSuchPaddingException ex) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-			Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-		} catch (SQLException ex) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-			Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvalidKeyException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalBlockSizeException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (BadPaddingException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchPaddingException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
 
-		}
+        }
 
-	}
+    }
 
-	/**
-	 * @return the dia
-	 */
-	public int getDia() {
-		return dia;
-	}
+    /**
+     * @return the dia
+     */
+    public int getDia() {
+        return dia;
+    }
 
-	/**
-	 * @param dia the dia to set
-	 */
-	public void setDia(int dia) {
-		this.dia = dia;
-	}
+    /**
+     * @param dia the dia to set
+     */
+    public void setDia(int dia) {
+        this.dia = dia;
+    }
 
-	/**
-	 * @return the mes
-	 */
-	public int getMes() {
-		return mes;
-	}
+    /**
+     * @return the mes
+     */
+    public int getMes() {
+        return mes;
+    }
 
-	/**
-	 * @param mes the mes to set
-	 */
-	public void setMes(int mes) {
-		this.mes = mes;
-	}
+    /**
+     * @param mes the mes to set
+     */
+    public void setMes(int mes) {
+        this.mes = mes;
+    }
 
-	/**
-	 * @return the ano
-	 */
-	public int getAno() {
-		return ano;
-	}
+    /**
+     * @return the ano
+     */
+    public int getAno() {
+        return ano;
+    }
 
-	/**
-	 * @param ano the ano to set
-	 */
-	public void setAno(int ano) {
-		this.ano = ano;
-	}
+    /**
+     * @param ano the ano to set
+     */
+    public void setAno(int ano) {
+        this.ano = ano;
+    }
 
-	/**
-	 * @return the dias
-	 */
-	public Map<String, String> getDias() {
-		return dias;
-	}
+    /**
+     * @return the dias
+     */
+    public Map<String, String> getDias() {
+        return dias;
+    }
 
-	/**
-	 * @param dias the dias to set
-	 */
-	public void setDias(Map<String, String> dias) {
-		this.dias = dias;
-	}
+    /**
+     * @param dias the dias to set
+     */
+    public void setDias(Map<String, String> dias) {
+        this.dias = dias;
+    }
 
-	/**
-	 * @return the meses
-	 */
-	public Map<String, String> getMeses() {
-		meses.clear();
-		for (int i = 1; i <= 12; i++) {
-			meses.put(this.getText("month." + String.valueOf(i)),
-					String.valueOf(i - 1));
-		}
-		return meses;
-	}
+    /**
+     * @return the meses
+     */
+    public Map<String, String> getMeses() {
+        meses.clear();
+        for (int i = 1; i <= 12; i++) {
+            meses.put(this.getText("month." + String.valueOf(i)),
+                    String.valueOf(i - 1));
+        }
+        return meses;
+    }
 
-	/**
-	 * @param meses the meses to set
-	 */
-	public void setMeses(Map<String, String> meses) {
-		this.meses = meses;
-	}
+    /**
+     * @param meses the meses to set
+     */
+    public void setMeses(Map<String, String> meses) {
+        this.meses = meses;
+    }
 
-	/**
-	 * @return the anos
-	 */
-	public Map<String, String> getAnos() {
-		return anos;
-	}
+    /**
+     * @return the anos
+     */
+    public Map<String, String> getAnos() {
+        return anos;
+    }
 
-	/**
-	 * @param anos the anos to set
-	 */
-	public void setAnos(Map<String, String> anos) {
-		this.anos = anos;
-	}
+    /**
+     * @param anos the anos to set
+     */
+    public void setAnos(Map<String, String> anos) {
+        this.anos = anos;
+    }
 
-	/**
-	 * @return the showErrorMessage
-	 */
-	public boolean isShowErrorMessage() {
-		return showErrorMessage;
-	}
+    /**
+     * @return the showErrorMessage
+     */
+    public boolean isShowErrorMessage() {
+        return showErrorMessage;
+    }
 
-	/**
-	 * @param showErrorMessage the showErrorMessage to set
-	 */
-	public void setShowErrorMessage(boolean showErrorMessage) {
-		this.showErrorMessage = showErrorMessage;
-	}
+    /**
+     * @param showErrorMessage the showErrorMessage to set
+     */
+    public void setShowErrorMessage(boolean showErrorMessage) {
+        this.showErrorMessage = showErrorMessage;
+    }
 
-	private void clear() {
-		this.ano = 0;
-		this.dia = 0;
-		this.mes = -1;
-		this.password = "";
-		this.user = new User();
-	}
+    private void clear() {
+        this.ano = 0;
+        this.dia = 0;
+        this.mes = -1;
+        this.password = "";
+        this.user = new User();
+    }
 
-	/**
-	 * @return the email
-	 */
-	public String getEmail() {
-		return email;
-	}
+    /**
+     * @return the email
+     */
+    public String getEmail() {
+        return email;
+    }
 
-	/**
-	 * @param email the email to set
-	 */
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    /**
+     * @param email the email to set
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }
