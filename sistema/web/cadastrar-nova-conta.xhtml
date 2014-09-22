@@ -142,6 +142,7 @@
                                         </div>
 
                                         <div id="signinbtn">
+                                            <h:outputLink value="enviar-email-senha.xhtml">#{messages['forgot.password']}</h:outputLink>
                                             <p:commandButton id="entrarBtn" value="#{messages['signin']}" update="@form" actionListener="#{loginController.loginBegin}" ajax="false"/>
                                         </div>
 

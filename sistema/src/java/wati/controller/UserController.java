@@ -177,28 +177,27 @@ public class UserController extends BaseFormController<User> {
         try {
             List<User> userList = this.getDaoBase().list("email", this.email, this.getEntityManager());
             if (userList.isEmpty()) {
-                String message = "Usuário não cadastrado solicitando alteração de senha";
+                String message = this.getText("user.not.registered.password");
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
-                //System.out.println("Usuário não cadastrado solicitando alteração de senha");
             } else {
-                String name_user = userList.get(0).getName(); //this.user.getName();
-                String email_user = userList.get(0).getEmail();//this.user.getEmail();
+                String name_user = userList.get(0).getName();
+                String email_user = userList.get(0).getEmail();
                 String from = "watiufjf@gmail.com";
 
                 int code = this.generateCode();
 
                 String to = this.email;
-                String subject = "Redefinição de senha";
+                String subject = this.getText("subject.email.password");
                 String body;
-                body = "Olá " + name_user + "\n"
+                body = this.getText("hello ") + name_user + "\n"
                         + "\n"
-                        + "Recebemos uma solicitação para informação dos dados de autenticação para o seguinte e-mail: " + email_user + ", caso não tenha feito esta solicitação, favor desconsiderar o mesmo. \n"
-                        + "Caso tenha sido você, favor entrar no seguinte link: "
-                        + this.getLinkPassword() + " e cadastrar o código abaixo para prosseguir com a alteração de sua senha." + "\n"
-                        + "Código: " + code + "\n\n"
-                        + " Att,"
+                        + this.getText("email.password.send")+ email_user + this.getText("email.password.send.2") + " \n"
+                        + this.getText("email.password.send.3") + "\n"
+                        + this.getText("email.password.send.4") + code + "\n"
+                        + this.getText("email.password.send.5") + this.getLinkPassword() +  "\n\n"
+                        + this.getText("cordialmente")
                         + "\n"
-                        + "Equipe Viva sem Tabaco"
+                        + this.getText("equipe.vst")
                         + "\n";
 
                 EMailSSL eMailSSL = new EMailSSL();
@@ -208,7 +207,7 @@ public class UserController extends BaseFormController<User> {
                 user = userList.get(0);
                 user.setRecoverCode(code);
                 this.getDaoBase().insertOrUpdate(user, this.getEntityManager());
-                String message = "Email enviado com sucesso";
+                String message = this.getText("email.sent.password");
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
             }
         } catch (SQLException ex) {
@@ -232,7 +231,6 @@ public class UserController extends BaseFormController<User> {
         while (valor > 999 && valor < 10000) {
             valor = (float) generate.nextInt(10000) / 10;
         }
-        //valor = (int)generate.nextInt();
         valor *= 10;
 
         codigo = (int) valor;
@@ -244,15 +242,9 @@ public class UserController extends BaseFormController<User> {
             String message;
             List<User> userList = this.getDaoBase().list("email", this.email, this.getEntityManager());
             if (!userList.isEmpty() && userList.get(0).getRecoverCode() != null && userList.get(0).getRecoverCode().intValue() == recoverCode.intValue()) {
-                //this.user = userList.get(0);
                 return "esqueceu-sua-senha-concluir.xhtml";
-                //System.out.println(userList.get(0).getRecoverCode() + "passou no if");
-
             } else {
-                //System.out.println(userList.get(0).getRecoverCode() + "valor de codigo enviado por email");
                 message = "Código ou email incorretos";
-				//System.out.println(message);
-                //System.out.println(Integer.valueOf(recoverCode) + "valueOf");
                 return message;
             }
         } catch (SQLException ex) {
@@ -261,30 +253,25 @@ public class UserController extends BaseFormController<User> {
             return "";
         }
     }
+    
+    public String returnIndex(){
+        return "index.xhtml";
+    }
 
     public String alterPassword() throws SQLException, InvalidKeyException {
         this.showErrorMessage = true;
         List<User> userList = this.getDaoBase().list("email", this.email, this.getEntityManager());
         try{
-            /*if (!userList.isEmpty()) {
-                String message = "usuario não cadastrado solicitando alteração de senha";
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
-            } 
-            else{*/
                 if (!userList.isEmpty() && userList.get(0).getId() != 0) {
                     user = userList.get(0);
-                   // System.out.println(userList.get(0).getId());
                     this.user.setPassword(Encrypter.encrypt(this.passwordd));
                     this.getDaoBase().insertOrUpdate(user, this.getEntityManager());
-                    String message = "Senha alterada";
+                    String message = this.getText("password.changed");
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
-                    return "index.xhtml";
-                    //System.out.println("senha alterada");
+                    this.returnIndex();
                 }
                 else{
-                    //System.out.println("id numero 0: " + userList.get(0).getEmail());
-                    //System.out.println("entrou no else");
-                    String message = "usuario não cadastrado solicitando alteração de senha";
+                    String message = this.getText("user.not.registered.requesting.password.change");
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
                 }
             
@@ -309,59 +296,7 @@ public class UserController extends BaseFormController<User> {
         }
         return "";
     }
-        /*this.showErrorMessage = true;
-        try{
-        if (!(dao.list("email", user.getEmail(), entityManager).isEmpty()));
-        //List<User> userList = this.getDaoBase().list("email", this.email, this.getEntityManager());
-        {
-            System.out.println(user.getId());
-            if (user.getId() != 0){//(!userList.isEmpty() && userList.get(0).getId() != 0){//user.getId() != 0) {
-                
-                this.user.setPassword(Encrypter.encrypt(this.passwordd));
-                this.getDaoBase().insertOrUpdate(user, this.getEntityManager());
-                String message = "senha alterada";
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
-               // return "index.xhtml";
-            } else {
-                String message = "Usuário não cadastrado";
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
-                //String message = "Usuário não cadastrado";
-                //return "";
-                
-            }}*/
-            
-            /*Locale locale = (Locale) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("locale");
-            if (locale == null) {
-                locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
-            }
-            this.user.setPreferedLanguage(locale.getLanguage());*/
-
-           /* ELContext elContext = FacesContext.getCurrentInstance().getELContext();
-            LoginController login = (LoginController) FacesContext.getCurrentInstance().getApplication().getELResolver().getValue(elContext, null, "loginController");
-            login.setPassword(this.password);
-        } catch (InvalidKeyException ex) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalBlockSizeException ex) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (BadPaddingException ex) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (NoSuchAlgorithmException ex) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (NoSuchPaddingException ex) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
-            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-            /*  } catch (SQLException ex) {
-             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));*/
-             //Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-
         
-       // return "";
-
-
     public void save(ActionEvent actionEvent) {
 
         this.showErrorMessage = true;

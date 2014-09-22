@@ -30,12 +30,12 @@
                                         
                                         <div class="signuptext">
                                             
-                                            Digite seu email:
+                                            #{messages['enter.email']}
                                             <p:inputText id="emailTxt" value="#{userController.email}" required="true" size="30" label="E-mail" >
                                         <f:validateLength maximum="50" />
                                     </p:inputText>
                                             
-                                            Digite o código:
+                                            #{messages['enter.code']}
                                             <p:inputText id="codeTxt" value="#{userController.recoverCode}" required="true" size="30" label="Código">
                                             <f:validateLength maximum="50"/>
                                             </p:inputText>
