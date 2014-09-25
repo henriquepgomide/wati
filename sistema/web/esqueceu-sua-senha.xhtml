@@ -21,45 +21,39 @@
                 <div class="main">
 
                     <div class="pagecontent">
-                        <div id="maintop">
-                            <div id="maincenter">
-
-                                <div id="mainleft">
-                                <h:form>
-                                    <div id="signup">
-                                        
-                                        <div class="signuptext">
-                                            
-                                            #{messages['enter.email']}
-                                            <p:inputText id="emailTxt" value="#{userController.email}" required="true" size="30" label="E-mail" >
+                        <h:form class="form-signup">
+                            <div id="signin">
+                                
+                                <h1>Esqueci minha senha</h1>
+                                <div class="signuptext">
+                                    <!--<p>#{messages['enter.email']}</p>-->
+                                    <p:inputText id="emailTxt" value="#{userController.email}" required="true" size="30" label="#{messages['email']}" >
                                         <f:validateLength maximum="50" />
                                     </p:inputText>
-                                            
-                                            #{messages['enter.code']}
-                                            <p:inputText id="codeTxt" value="#{userController.recoverCode}" required="true" size="30" label="Código">
-                                            <f:validateLength maximum="50"/>
-                                            </p:inputText>
-                                            
-            
-                         
-                                        
-                                    </div>
-                                    
-                                    <div id="signinbtn">
-                                        <p:commandButton id="nexttBtn" value="#{messages['next']}" update="@form" action="#{userController.checkCode()}" ajax="false"/>
-                                        </div>
-                                        
-                                    
-                                
-                        </div>
-            </h:form>
+                                    <p:watermark for="emailTxt" value="#{messages['email']}" />
+                                </div>
+
+                                <div class="signuptext">
+                                <!--<p>#{messages['enter.code']}</p>-->
+                                <p:inputText id="codeTxt" value="#{userController.recoverCode}" required="true" size="30" label="#{messages['code']}">
+                                    <f:validateLength maximum="50"/>
+                                </p:inputText>
+                                <p:watermark for="codeTxt" value="#{messages['code']}" />
+                                </div>
+
+
+                                <div id="signinbtn">
+                                    <p:commandButton id="nexttBtn" value="#{messages['next']}" update="@form" action="#{userController.checkCode()}" ajax="false"/>
+                                </div>
+
+
+
+                            </div>
+                        </h:form>
                     </div>
                 </div>
 
-            </div>
-            </div>
-                </div>
-            </div>
+            </div>            
             <!--Footer -->
             <w:footer />
         </h:body>
