@@ -189,7 +189,7 @@ public class UserController extends BaseFormController<User> {
                 String to = this.email;
                 String subject = this.getText("subject.email.password");
                 String body;
-                body = this.getText("hello ") + name_user + "\n"
+                body = this.getText("hello") + name_user + "\n"
                         + "\n"
                         + this.getText("email.password.send")+ email_user + this.getText("email.password.send.2") + " \n"
                         + this.getText("email.password.send.3") + "\n"
@@ -241,7 +241,7 @@ public class UserController extends BaseFormController<User> {
         try {
             String message;
             List<User> userList = this.getDaoBase().list("email", this.email, this.getEntityManager());
-            if (!userList.isEmpty() && userList.get(0).getRecoverCode() != null && userList.get(0).getRecoverCode().intValue() == recoverCode.intValue()) {
+            if (!userList.isEmpty() && userList.get(0).getRecoverCode() != null && userList.get(0).getRecoverCode().intValue() == recoverCode.intValue() && recoverCode.intValue() != 0) {
                 return "esqueceu-sua-senha-concluir.xhtml";
             } else {
                 message = "Código ou email incorretos";
@@ -258,7 +258,7 @@ public class UserController extends BaseFormController<User> {
         return "index.xhtml";
     }
 
-    public String alterPassword() throws SQLException, InvalidKeyException {
+    public void alterPassword() throws SQLException, InvalidKeyException, IOException {
         this.showErrorMessage = true;
         List<User> userList = this.getDaoBase().list("email", this.email, this.getEntityManager());
         try{
@@ -268,7 +268,8 @@ public class UserController extends BaseFormController<User> {
                     this.getDaoBase().insertOrUpdate(user, this.getEntityManager());
                     String message = this.getText("password.changed");
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
-                    this.returnIndex();
+                    FacesContext.getCurrentInstance().getExternalContext().redirect("index.xhtml");
+                    //this.returnIndex();
                 }
                 else{
                     String message = this.getText("user.not.registered.requesting.password.change");
@@ -294,7 +295,12 @@ public class UserController extends BaseFormController<User> {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
             Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return "";
+        this.setPasswordAlter(user); 
+    }
+    
+    public void setPasswordAlter(User user){
+        int setCode = 0;
+        user.setRecoverCode(setCode);
     }
         
     public void save(ActionEvent actionEvent) {
