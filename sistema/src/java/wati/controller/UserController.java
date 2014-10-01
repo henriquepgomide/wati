@@ -237,6 +237,7 @@ public class UserController extends BaseFormController<User> {
         return (int) codigo;
     }
 
+    
     public String checkCode() {
         try {
             String message;
@@ -244,8 +245,9 @@ public class UserController extends BaseFormController<User> {
             if (!userList.isEmpty() && userList.get(0).getRecoverCode() != null && userList.get(0).getRecoverCode().intValue() == recoverCode.intValue() && recoverCode.intValue() != 0) {
                 return "esqueceu-sua-senha-concluir.xhtml";
             } else {
-                message = "Código ou email incorretos";
-                return message;
+                message = this.getText("email.code.incorretos");
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
+                return "";
             }
         } catch (SQLException ex) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
@@ -265,6 +267,10 @@ public class UserController extends BaseFormController<User> {
                 if (!userList.isEmpty() && userList.get(0).getId() != 0) {
                     user = userList.get(0);
                     this.user.setPassword(Encrypter.encrypt(this.passwordd));
+                    /*if (!Encrypter.compare(this.passwordd, this.user.getPassword())) {
+                        //incluir criptografia da senha
+                        this.user.setPassword(Encrypter.encrypt(this.passwordd));
+                    }*/
                     this.getDaoBase().insertOrUpdate(user, this.getEntityManager());
                     String message = this.getText("password.changed");
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, message, null));
@@ -295,7 +301,8 @@ public class UserController extends BaseFormController<User> {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, this.getText("problemas.gravar.usuario"), null));
             Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        this.setPasswordAlter(user); 
+        this.setPasswordAlter(user);
+        this.getDaoBase().insertOrUpdate(user, this.getEntityManager());
     }
     
     public void setPasswordAlter(User user){

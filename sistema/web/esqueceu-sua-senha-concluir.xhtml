@@ -24,7 +24,7 @@
                         <h:form class="form-signup">
                             <div id="signin">
                                 
-                                <h1>Trocar senha</h1>
+                                <h1>#{messages['change.password']}</h1>
 
                                 <div class="signuptext">
                                     <p:inputText id="emailTxt" value="#{userController.email}" required="true" size="30" label="#{messages['enter.email']}" >
@@ -53,6 +53,13 @@
                                     </p:password>
                                     <p:watermark for="passwordTxt" value="#{messages['enter.new.password']}" />
                                 </div>
+                 <!--               <div class="signuptext">
+                                                <p:password id="confirmPasswordTxt" value="#{userController.passwordd}" required="true" redisplay="true" label="#{messages['naccount.rpt.psw']}">  
+                                                    <f:validateLength maximum="16" />
+                                                    <!--<p:ajax update="passwordMsg" event="blur" />-->
+                 <!--                               </p:password>
+                                                <p:watermark for="confirmPasswordTxt" value="#{messages['naccount.rpt.psw']}" />
+                                            </div>      -->
                             </div>
 
                             <div id="signinbtn">
